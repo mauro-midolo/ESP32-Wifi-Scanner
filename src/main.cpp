@@ -14,7 +14,7 @@ private:
     String text;
   };
 
-  LogEntry logEntries[NUM_LINES];
+  String entries[NUM_LINES];
   bool initialized;
 
 public:
@@ -30,8 +30,7 @@ public:
   {
     for (int i = 0; i < NUM_LINES; i++)
     {
-      logEntries[i].lineNumber = i + 1; // Puoi personalizzare la logica dell'indice se necessario
-      logEntries[i].text = "";
+      entries[i] = "";
     }
     drawLog();
   }
@@ -44,22 +43,14 @@ public:
       return;
     }
 
-    if (index < 1 || index > NUM_LINES)
+    if (index < 0 || index > NUM_LINES - 1)
     {
       Serial.println("Errore: L'indice di inserimento deve essere compreso tra 1 e " + String(NUM_LINES));
       return;
     }
 
-    // Aggiungi una nuova riga di log con l'indice specificato
-    LogEntry newEntry;
-    newEntry.lineNumber = index;
-    newEntry.text = logText;
-
-    // Trova la posizione corrispondente nell'array
-    int arrayIndex = index - 1;
-
     // Aggiungi l'entry alla lista
-    logEntries[arrayIndex] = newEntry;
+    entries[index] = logText;
 
     // Disegna il log sul display
     drawLog();
@@ -75,7 +66,7 @@ private:
 
     for (int i = 0; i < NUM_LINES; i++)
     {
-      Heltec.display->drawString(0, startY + i * LINE_HEIGHT, logEntries[i].text);
+      Heltec.display->drawString(0, startY + i * LINE_HEIGHT, entries[i]);
     }
 
     Heltec.display->display();
@@ -89,7 +80,7 @@ void setup()
 {
   Serial.begin(115200);
   indexedLogDisplay.begin();
-  indexedLogDisplay.add(1, "Wifi Scanner...");
+  indexedLogDisplay.add(0, "Wifi Scanner...");
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   delay(100);
@@ -100,7 +91,7 @@ void loop()
   int n = WiFi.scanNetworks();
   if (n == 0)
   {
-    indexedLogDisplay.add(1, "No Connection found...");
+    indexedLogDisplay.add(0, "No Connection found...");
   }
   else
   {
@@ -108,7 +99,7 @@ void loop()
     {
       String result = "";
       result += String(i + 1) + " | " + WiFi.SSID(i).c_str();
-      indexedLogDisplay.add(i + 1, result);
+      indexedLogDisplay.add(i, result);
       delay(10);
     }
   }
